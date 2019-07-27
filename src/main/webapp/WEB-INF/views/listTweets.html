@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <title>Twitter</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../resources/static/style.css" th:href="@{/resources/static/style.css}">
+    <link rel="shortcut icon" th:href="@{/resources/static/favicon.ico}"/>
+</head>
+<body>
+<div class="container d-flex align-items-center">
+    <div class="header d-flex align-items-center justify-content-end">
+        <a class="p-2" href='getTweets'><img class="logo" th:src="@{/resources/icons8-twitter-48.png}"></a>
+        <nav class="">
+            <a class="p-2" th:href='profile'>Profile </a>
+            <a class="p-2" th:href='logout'>Log out</a>
+        </nav>
+    </div>
+</div>
+<div class="box blue"></div>
+<br>
+<br>
+<section class="contentpage">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 col-xl-4 a1"></div>
+            <div class="col-md-6 col-xl-4 a2">
+                <div class="subscribe">
+
+
+                    <div th:if="${userId!=initialUserId}">
+                        <div class="form-group">
+                            <form name="subscribe" method="post" action="subscribe">
+                                <input type="hidden" name="userId" th:value="${userId}"/>
+                                <input type="hidden" name="initialUserId" th:value="${initialUserId}"/>
+
+                                <div th:if="${isSubscribed}">
+                                    <input class="btn btn-primary" type="submit" value="Unsubscribe">
+                                </div>
+                                <div th:if="${not isSubscribed}">
+                                    <input class="btn btn-primary" type="submit" value="Subscribe">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+
+                    <div th:if="${userId==initialUserId}">
+                        <div class="form-group">
+                            <form name="form1" action="getTweets" method="post" enctype="multipart/form-data">
+                                ​<textarea placeholder="What`s happening?" name="tweet" rows="5" cols="90"></textarea>
+                                <label for="file-upload" class="custom-file-upload btn btn-primary">
+                                    <i class="fa fa-cloud-upload"></i> Upload image
+                                </label>
+                                <input id="file-upload" type="file" name="multiPartServlet" style="display: none"/>
+                                <br><span class="error"> <font size="3" color="red" th:text="${messages}"></font></span><br>
+                                <input type="submit" class="btn btn-primary"
+                                       onclick="stringlength(document.form1.tweet,3,280)">
+                            </form>
+                        </div>
+                    </div>
+
+
+                    <div class="card-holder">
+                        <div th:each="tweet: ${tweets}">
+                            <div class="card mb-3">
+                                <div class="card-body p-3" style="min-height: 30px; max-height: 400px;">
+                                    <div class="card-title"
+                                         th:text="${tweet.getUserName()} + ' '+ ${tweet.getFormattedTime()}">
+                                    </div>
+                                    <div th:if="${tweet.getUserId()==initialUserId}">
+                                        <div class="right"><a class="p-2"
+                                                              th:href="@{'deleteTweet?tweetId=' + ${tweet.getTweetId()} + '&userId='+ ${userId}}">
+                                            <img th:src="@{/resources/delete_tweet.png}"></a></div>
+                                    </div>
+
+
+                                    <div th:text="${tweet.getText()}"></div>
+                                    <!--   Добавить перенос строки-->
+
+
+                                    <div th:if="${tweet.getImage() != null}">
+                                        <br>
+                                        <img alt="img" class="story-small"
+                                             th:src="@{'data:image/jpeg;base64,'+${tweet.getImage()}}"
+                                             height="300"/>
+                                    </div>
+
+
+                                    <div class="right">
+                                        <form action="like" method="post">
+                                            <input type="hidden" name="userId" th:value="${userId}"/>
+                                            <input type="hidden" name="initialUserId" th:value="${initialUserId}"/>
+                                            <input type="hidden" name="currentPage" th:value="${currentPage}"/>
+                                            <input type="hidden" name="tweetId" th:value="${tweet.getTweetId()}"/>
+                                            <div th:if="${tweet.getNumberOfLikes()!=0}"
+                                                 th:text=" ${tweet.getNumberOfLikes()}">
+                                            </div>
+                                            <div th:if="${tweet.isLiked()}">
+                                                <button class="noborder" type="submit" name="like" value="false">
+                                                    <img
+                                                            th:src="@{/resources/heart_full.png}">
+                                                </button>
+                                            </div>
+                                            <div th:if="${not tweet.isLiked()}">
+                                                <button class="noborder" type="submit" name="like" value="true"><img
+                                                        th:src="@{/resources/heart_empty.png}">
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <center>
+                    <nav aria-label="Navigation for twitts">
+                        <ul class="pagination">
+                            <li th:if="${currentPage != 1}" class="page-item"><a class="page-link"
+                                                                                 th:href="@{'getTweets?currentPage=' + ${currentPage-1} + '&userId='+${userId}}">Previous</a>
+                            </li>
+                           <th:block th:if="${noOfPages != 0}">
+                            <!--                                                ${noOfPages}-->
+                            <th:block th:each="i : ${#numbers.sequence( 1, noOfPages )}">
+                                <li th:if="${currentPage eq i}" class="page-item active"><a class="page-link"
+                                                                                            th:text=" ${i}">
+                                    <span class="sr-only">(current)</span></a>
+                                </li>
+                                <li th:if="${currentPage != i}" class="page-item"><a class="page-link"
+                                                                                     th:href="@{'getTweets?currentPage='+${i}+'&userId='+${userId}}"
+                                                                                     th:text="${i}"></a>
+                                </li>
+                            </th:block>
+                           </th:block>
+                            <li th:if="${currentPage lt noOfPages}" class="page-item"><a class="page-link"
+                                                                                         th:href="@{'getTweets?currentPage='+${currentPage+1}+'&userId='+${userId}}">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </center>
+
+            </div>
+            <div class="col-md-6 col-xl-4 a3">
+                <div class="users-block">
+                    <div class="card mb-3">
+                        <div class="card-body p-3">
+                            <font size="5"> Who to follow</font>
+                            <div th:if="${notFollowedUsers!=null}">
+                                <div th:each="unFollowedUser: ${notFollowedUsers}">
+                                    <div>
+                                        <font size="3"> <a class="p-2"
+                                                           th:href="@{'getTweets?userId=' + ${unFollowedUser.getId()}}"
+                                                           th:text="${unFollowedUser.getName()}"></a>
+                                        </font>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="users-block">
+                    <div class="card mb-3">
+                        <div class="card-body p-3">
+                            <font size="5"> Who followed</font>
+                            <div th:if="${followedUsers!=null}">
+                                <div th:each="followedUser: ${followedUsers}">
+                                    <div>
+                                        <font size="3"> <a class="p-2"
+                                                           th:href="@{'getTweets?userId=' + ${followedUser.getId()}}"
+                                                           th:text="${followedUser.getName()}"></a>
+
+                                        </font>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<footer>
+    <div class="container-fluid">
+        <div class="container-fluid">
+            <h3>Made with ❤</h3>
+        </div>
+    </div>
+</footer>
+<script type="text/javascript">
+    function stringlength(inputtxt, minlength, maxlength) {
+        var field = inputtxt.value;
+        if (field.length < minlength || field.length > maxlength) {
+            alert("Please input field between " + minlength + " and " + maxlength + " characters");
+            return false;
+        } else {
+            return true;
+        }
+    }
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
+</body>
+</html>

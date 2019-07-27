@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <title>Twitter</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../resources/static/style.css" th:href="@{/resources/static/style.css}">
+    <link rel="shortcut icon" th:href="@{/resources/static/favicon.ico}"/>
+</head>
+<body class="text-center d-flex align-items-center">
+<form class="form-signin" method="post" action="registration" onsubmit="return validation(user_name, email, password)">
+    <img class="mb-4" th:src="@{/resources/icons8-twitter-48.png}">
+    <h1 class="h3 mb-3 font-weight-normal">Registration</h1>
+    <div class="form-group"><input type="text" class="form-control" name="user_name" placeholder="Name"
+                                   value=""/>
+    </div>
+    <div class="form-group"><input type="text" class="form-control" name="email" placeholder="Email"
+                                   value=""/>
+    </div>
+    <div class="form-group"><input type="password" class="form-control" name="password" placeholder="Password"
+                                   value=""/>
+    </div>
+    <div class="form-group"><input type="password" class="form-control" name="confirm_password" placeholder="Confirm password"
+                                   value=""/>
+    </div>
+    <center><br><span class="error" th:text="${messages}"></span><br></center>
+    <button class="btn btn-lg btn-primary btn-block mb-3" type="submit">Register</button>
+    <a class="btn btn-lg btn-block btn-link" href="login">Log in</a>
+</form>
+<script type="text/javascript">
+    function validation(user_name, user_email, user_password) {
+        var name = user_name.value;
+        var email = user_email.value;
+        var password = user_password.value;
+        var minLen = 3;
+        var maxLen = 20;
+        if (name.length < minLen || name.length > maxLen) {
+            alert("Name must be longer than " + minLen + " characters and shorter than " + maxLen + " characters");
+            return false;
+        }
+        if (!email.match(/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()\.,;\s@\"]+\.{0,1})+([^<>()\.,;:\s@\"]{2,}|[\d\.]+))$/)) {
+            alert("Required a valid email");
+            return false;
+        }
+        if (email.indexOf(' ') != -1 || email.indexOf('..') != -1) {
+            alert("Required a valid email");
+            return false;
+        }
+
+        if (password.length < minLen || password.length > maxLen) {
+            alert("Password must be longer than " + minLen + " characters and shorter than " + maxLen + " characters");
+            return false;
+        }
+        return true;
+    }
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
+</body>
+</html>
